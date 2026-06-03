@@ -61,6 +61,6 @@
   ],
   "release-type": "python",
   "extra-files": [
-    "src/everos/_version.py"
+    "src/everos_cloud/_version.py"
   ]
 }

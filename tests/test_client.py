@@ -19,12 +19,12 @@ import pytest
 from respx import MockRouter
 from pydantic import ValidationError
 
-from everos import EverOS, AsyncEverOS, APIResponseValidationError
-from everos._types import Omit
-from everos._utils import asyncify
-from everos._models import BaseModel, FinalRequestOptions
-from everos._exceptions import EverOSError, APIStatusError, APITimeoutError, APIResponseValidationError
-from everos._base_client import (
+from everos_cloud import EverOS, AsyncEverOS, APIResponseValidationError
+from everos_cloud._types import Omit
+from everos_cloud._utils import asyncify
+from everos_cloud._models import BaseModel, FinalRequestOptions
+from everos_cloud._exceptions import EverOSError, APIStatusError, APITimeoutError, APIResponseValidationError
+from everos_cloud._base_client import (
     DEFAULT_TIMEOUT,
     HTTPX_DEFAULT_TIMEOUT,
     BaseClient,
@@ -286,10 +286,10 @@ class TestEverOS:
                         # to_raw_response_wrapper leaks through the @functools.wraps() decorator.
                         #
                         # removing the decorator fixes the leak for reasons we don't understand.
-                        "everos/_legacy_response.py",
-                        "everos/_response.py",
+                        "everos_cloud/_legacy_response.py",
+                        "everos_cloud/_response.py",
                         # pydantic.BaseModel.model_dump || pydantic.BaseModel.dict leak memory for some reason.
-                        "everos/_compat.py",
+                        "everos_cloud/_compat.py",
                         # Standard library leaks we don't care about.
                         "/logging/__init__.py",
                     ]
@@ -870,7 +870,7 @@ class TestEverOS:
         calculated = client._calculate_retry_timeout(remaining_retries, options, headers)
         assert calculated == pytest.approx(timeout, 0.5 * 0.875)  # pyright: ignore[reportUnknownMemberType]
 
-    @mock.patch("everos._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
+    @mock.patch("everos_cloud._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter, client: EverOS) -> None:
         respx_mock.post("/api/v1/memories").mock(side_effect=httpx.TimeoutException("Test timeout error"))
@@ -889,7 +889,7 @@ class TestEverOS:
 
         assert _get_open_connections(client) == 0
 
-    @mock.patch("everos._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
+    @mock.patch("everos_cloud._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter, client: EverOS) -> None:
         respx_mock.post("/api/v1/memories").mock(return_value=httpx.Response(500))
@@ -908,7 +908,7 @@ class TestEverOS:
         assert _get_open_connections(client) == 0
 
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
-    @mock.patch("everos._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
+    @mock.patch("everos_cloud._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     @pytest.mark.parametrize("failure_mode", ["status", "exception"])
     def test_retries_taken(
@@ -948,7 +948,7 @@ class TestEverOS:
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
 
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
-    @mock.patch("everos._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
+    @mock.patch("everos_cloud._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_omit_retry_count_header(
         self, client: EverOS, failures_before_success: int, respx_mock: MockRouter
@@ -981,7 +981,7 @@ class TestEverOS:
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
 
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
-    @mock.patch("everos._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
+    @mock.patch("everos_cloud._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_overwrite_retry_count_header(
         self, client: EverOS, failures_before_success: int, respx_mock: MockRouter
@@ -1244,10 +1244,10 @@ class TestAsyncEverOS:
                         # to_raw_response_wrapper leaks through the @functools.wraps() decorator.
                         #
                         # removing the decorator fixes the leak for reasons we don't understand.
-                        "everos/_legacy_response.py",
-                        "everos/_response.py",
+                        "everos_cloud/_legacy_response.py",
+                        "everos_cloud/_response.py",
                         # pydantic.BaseModel.model_dump || pydantic.BaseModel.dict leak memory for some reason.
-                        "everos/_compat.py",
+                        "everos_cloud/_compat.py",
                         # Standard library leaks we don't care about.
                         "/logging/__init__.py",
                     ]
@@ -1847,7 +1847,7 @@ class TestAsyncEverOS:
         calculated = async_client._calculate_retry_timeout(remaining_retries, options, headers)
         assert calculated == pytest.approx(timeout, 0.5 * 0.875)  # pyright: ignore[reportUnknownMemberType]
 
-    @mock.patch("everos._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
+    @mock.patch("everos_cloud._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter, async_client: AsyncEverOS) -> None:
         respx_mock.post("/api/v1/memories").mock(side_effect=httpx.TimeoutException("Test timeout error"))
@@ -1866,7 +1866,7 @@ class TestAsyncEverOS:
 
         assert _get_open_connections(async_client) == 0
 
-    @mock.patch("everos._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
+    @mock.patch("everos_cloud._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter, async_client: AsyncEverOS) -> None:
         respx_mock.post("/api/v1/memories").mock(return_value=httpx.Response(500))
@@ -1885,7 +1885,7 @@ class TestAsyncEverOS:
         assert _get_open_connections(async_client) == 0
 
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
-    @mock.patch("everos._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
+    @mock.patch("everos_cloud._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     @pytest.mark.parametrize("failure_mode", ["status", "exception"])
     async def test_retries_taken(
@@ -1925,7 +1925,7 @@ class TestAsyncEverOS:
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
 
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
-    @mock.patch("everos._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
+    @mock.patch("everos_cloud._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_omit_retry_count_header(
         self, async_client: AsyncEverOS, failures_before_success: int, respx_mock: MockRouter
@@ -1958,7 +1958,7 @@ class TestAsyncEverOS:
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
 
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
-    @mock.patch("everos._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
+    @mock.patch("everos_cloud._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_overwrite_retry_count_header(
         self, async_client: AsyncEverOS, failures_before_success: int, respx_mock: MockRouter

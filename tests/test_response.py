@@ -6,8 +6,8 @@ import httpx
 import pytest
 import pydantic
 
-from everos import EverOS, BaseModel, AsyncEverOS
-from everos._response import (
+from everos_cloud import EverOS, BaseModel, AsyncEverOS
+from everos_cloud._response import (
     APIResponse,
     BaseAPIResponse,
     AsyncAPIResponse,
@@ -15,8 +15,8 @@ from everos._response import (
     AsyncBinaryAPIResponse,
     extract_response_type,
 )
-from everos._streaming import Stream
-from everos._base_client import FinalRequestOptions
+from everos_cloud._streaming import Stream
+from everos_cloud._base_client import FinalRequestOptions
 
 
 class ConcreteBaseAPIResponse(APIResponse[bytes]): ...
@@ -37,7 +37,7 @@ def test_extract_response_type_direct_classes() -> None:
 def test_extract_response_type_direct_class_missing_type_arg() -> None:
     with pytest.raises(
         RuntimeError,
-        match="Expected type <class 'everos._response.AsyncAPIResponse'> to have a type argument at index 0 but it did not",
+        match="Expected type <class 'everos_cloud._response.AsyncAPIResponse'> to have a type argument at index 0 but it did not",
     ):
         extract_response_type(AsyncAPIResponse)
 
@@ -68,7 +68,7 @@ def test_response_parse_mismatched_basemodel(client: EverOS) -> None:
 
     with pytest.raises(
         TypeError,
-        match="Pydantic models must subclass our base model type, e.g. `from everos import BaseModel`",
+        match="Pydantic models must subclass our base model type, e.g. `from everos_cloud import BaseModel`",
     ):
         response.parse(to=PydanticModel)
 
@@ -86,7 +86,7 @@ async def test_async_response_parse_mismatched_basemodel(async_client: AsyncEver
 
     with pytest.raises(
         TypeError,
-        match="Pydantic models must subclass our base model type, e.g. `from everos import BaseModel`",
+        match="Pydantic models must subclass our base model type, e.g. `from everos_cloud import BaseModel`",
     ):
         await response.parse(to=PydanticModel)
 

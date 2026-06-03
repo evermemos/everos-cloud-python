@@ -1,7 +1,7 @@
 # EverOS API library
 
 <!-- prettier-ignore -->
-[![PyPI version](https://img.shields.io/pypi/v/everos.svg?label=pypi%20(stable))](https://pypi.org/project/everos/)
+[![PyPI version](https://img.shields.io/pypi/v/everos-cloud.svg?label=pypi%20(stable))](https://pypi.org/project/everos-cloud/)
 
 The EverOS library provides convenient access to the Ever OS REST API from any Python 3.9+
 application. The library includes type definitions for all request params and response fields,
@@ -11,13 +11,13 @@ It is generated with [Stainless](https://www.stainless.com/).
 
 ## Documentation
 
-The full API of this library can be found in [api.md](api.md).
+The REST API documentation can be found on [api.evermind.ai](https://api.evermind.ai). The full API of this library can be found in [api.md](api.md).
 
 ## Installation
 
 ```sh
 # install from PyPI
-pip install everos
+pip install everos-cloud
 ```
 
 ## Usage
@@ -26,7 +26,7 @@ The full API of this library can be found in [api.md](api.md).
 
 ```python
 import os
-from everos import EverOS
+from everos_cloud import EverOS
 
 client = EverOS(
     api_key=os.environ.get("EVEROS_API_KEY"),  # This is the default and can be omitted
@@ -57,7 +57,7 @@ Simply import `AsyncEverOS` instead of `EverOS` and use `await` with each API ca
 ```python
 import os
 import asyncio
-from everos import AsyncEverOS
+from everos_cloud import AsyncEverOS
 
 client = AsyncEverOS(
     api_key=os.environ.get("EVEROS_API_KEY"),  # This is the default and can be omitted
@@ -91,7 +91,7 @@ You can enable this by installing `aiohttp`:
 
 ```sh
 # install from PyPI
-pip install everos[aiohttp]
+pip install everos-cloud[aiohttp]
 ```
 
 Then you can enable it by instantiating the client with `http_client=DefaultAioHttpClient()`:
@@ -99,8 +99,8 @@ Then you can enable it by instantiating the client with `http_client=DefaultAioH
 ```python
 import os
 import asyncio
-from everos import DefaultAioHttpClient
-from everos import AsyncEverOS
+from everos_cloud import DefaultAioHttpClient
+from everos_cloud import AsyncEverOS
 
 
 async def main() -> None:
@@ -138,7 +138,7 @@ Typed requests and responses provide autocomplete and documentation within your 
 Nested parameters are dictionaries, typed using `TypedDict`, for example:
 
 ```python
-from everos import EverOS
+from everos_cloud import EverOS
 
 client = EverOS()
 
@@ -150,16 +150,16 @@ print(settings_api_response.llm_custom_setting)
 
 ## Handling errors
 
-When the library is unable to connect to the API (for example, due to network connection problems or a timeout), a subclass of `everos.APIConnectionError` is raised.
+When the library is unable to connect to the API (for example, due to network connection problems or a timeout), a subclass of `everos_cloud.APIConnectionError` is raised.
 
 When the API returns a non-success status code (that is, 4xx or 5xx
-response), a subclass of `everos.APIStatusError` is raised, containing `status_code` and `response` properties.
+response), a subclass of `everos_cloud.APIStatusError` is raised, containing `status_code` and `response` properties.
 
-All errors inherit from `everos.APIError`.
+All errors inherit from `everos_cloud.APIError`.
 
 ```python
-import everos
-from everos import EverOS
+import everos_cloud
+from everos_cloud import EverOS
 
 client = EverOS()
 
@@ -174,12 +174,12 @@ try:
         ],
         user_id="user_123",
     )
-except everos.APIConnectionError as e:
+except everos_cloud.APIConnectionError as e:
     print("The server could not be reached")
     print(e.__cause__)  # an underlying Exception, likely raised within httpx.
-except everos.RateLimitError as e:
+except everos_cloud.RateLimitError as e:
     print("A 429 status code was received; we should back off a bit.")
-except everos.APIStatusError as e:
+except everos_cloud.APIStatusError as e:
     print("Another non-200-range status code was received")
     print(e.status_code)
     print(e.response)
@@ -207,7 +207,7 @@ Connection errors (for example, due to a network connectivity problem), 408 Requ
 You can use the `max_retries` option to configure or disable retry settings:
 
 ```python
-from everos import EverOS
+from everos_cloud import EverOS
 
 # Configure the default for all requests:
 client = EverOS(
@@ -234,7 +234,7 @@ By default requests time out after 1 minute. You can configure this with a `time
 which accepts a float or an [`httpx.Timeout`](https://www.python-httpx.org/advanced/timeouts/#fine-tuning-the-configuration) object:
 
 ```python
-from everos import EverOS
+from everos_cloud import EverOS
 
 # Configure the default for all requests:
 client = EverOS(
@@ -295,7 +295,7 @@ if response.my_field is None:
 The "raw" Response object can be accessed by prefixing `.with_raw_response.` to any HTTP method call, e.g.,
 
 ```py
-from everos import EverOS
+from everos_cloud import EverOS
 
 client = EverOS()
 response = client.v1.memories.with_raw_response.add(
@@ -312,9 +312,9 @@ memory = response.parse()  # get the object that `v1.memories.add()` would have 
 print(memory.data)
 ```
 
-These methods return an [`APIResponse`](https://github.com/evermemos/everos-python/tree/main/src/everos/_response.py) object.
+These methods return an [`APIResponse`](https://github.com/evermemos/everos-cloud-python/tree/main/src/everos_cloud/_response.py) object.
 
-The async client returns an [`AsyncAPIResponse`](https://github.com/evermemos/everos-python/tree/main/src/everos/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
+The async client returns an [`AsyncAPIResponse`](https://github.com/evermemos/everos-cloud-python/tree/main/src/everos_cloud/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
 
 #### `.with_streaming_response`
 
@@ -385,7 +385,7 @@ You can directly override the [httpx client](https://www.python-httpx.org/api/#c
 
 ```python
 import httpx
-from everos import EverOS, DefaultHttpxClient
+from everos_cloud import EverOS, DefaultHttpxClient
 
 client = EverOS(
     # Or use the `EVER_OS_BASE_URL` env var
@@ -408,7 +408,7 @@ client.with_options(http_client=DefaultHttpxClient(...))
 By default the library closes underlying HTTP connections whenever the client is [garbage collected](https://docs.python.org/3/reference/datamodel.html#object.__del__). You can manually close the client using the `.close()` method if desired, or with a context manager that closes when exiting.
 
 ```py
-from everos import EverOS
+from everos_cloud import EverOS
 
 with EverOS() as client:
   # make requests here
@@ -427,7 +427,7 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 
 We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-We are keen for your feedback; please open an [issue](https://www.github.com/evermemos/everos-python/issues) with questions, bugs, or suggestions.
+We are keen for your feedback; please open an [issue](https://www.github.com/evermemos/everos-cloud-python/issues) with questions, bugs, or suggestions.
 
 ### Determining the installed version
 
@@ -436,8 +436,8 @@ If you've upgraded to the latest version but aren't seeing any new features you 
 You can determine the version that is being used at runtime with:
 
 ```py
-import everos
-print(everos.__version__)
+import everos_cloud
+print(everos_cloud.__version__)
 ```
 
 ## Requirements

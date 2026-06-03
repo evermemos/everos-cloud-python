@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Iterable, Optional
+from typing import Iterable, Optional
 
 import httpx
 
@@ -17,43 +17,43 @@ from ...._response import (
     async_to_streamed_response_wrapper,
 )
 from ...._base_client import make_request_options
-from ....types.v1.memories import group_add_params, group_flush_params
+from ....types.v1.memories import agent_add_params, agent_flush_params
 from ....types.v1.add_response import AddResponse
 from ....types.v1.flush_response import FlushResponse
-from ....types.v1.memories.group_message_item_param import GroupMessageItemParam
+from ....types.v1.memories.agent_message_item_param import AgentMessageItemParam
 
-__all__ = ["GroupResource", "AsyncGroupResource"]
+__all__ = ["AgentResource", "AsyncAgentResource"]
 
 
-class GroupResource(SyncAPIResource):
+class AgentResource(SyncAPIResource):
     """Memory ingestion, retrieval, search, and deletion"""
 
     @cached_property
-    def with_raw_response(self) -> GroupResourceWithRawResponse:
+    def with_raw_response(self) -> AgentResourceWithRawResponse:
         """
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/evermemos/everos-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/evermemos/everos-cloud-python#accessing-raw-response-data-eg-headers
         """
-        return GroupResourceWithRawResponse(self)
+        return AgentResourceWithRawResponse(self)
 
     @cached_property
-    def with_streaming_response(self) -> GroupResourceWithStreamingResponse:
+    def with_streaming_response(self) -> AgentResourceWithStreamingResponse:
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/evermemos/everos-python#with_streaming_response
+        For more information, see https://www.github.com/evermemos/everos-cloud-python#with_streaming_response
         """
-        return GroupResourceWithStreamingResponse(self)
+        return AgentResourceWithStreamingResponse(self)
 
     def add(
         self,
         *,
-        group_id: str,
-        messages: Iterable[GroupMessageItemParam],
+        messages: Iterable[AgentMessageItemParam],
+        user_id: str,
         async_mode: bool | Omit = omit,
-        group_meta: Optional[Dict[str, object]] | Omit = omit,
+        session_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -61,20 +61,20 @@ class GroupResource(SyncAPIResource):
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> AddResponse:
-        """Store batch messages into group memory space.
+        """Store agent trajectory messages (user/assistant/tool) into memory.
 
-        Each message must include
-        sender_id to identify participants.
+        Supports
+        tool_calls and tool_call_id for OpenAI-format function calling.
 
         Args:
-          group_id: Group identifier
+          messages: Agent trajectory messages (1-500 items)
 
-          messages: Batch message array (1-500 items). sender_id is required per message.
+          user_id: Owner user ID
 
           async_mode: Enable async processing. When true, returns 202 with task_id; when false,
               processes synchronously and returns 200.
 
-          group_meta: Group metadata
+          session_id: Session identifier
 
           extra_headers: Send extra headers
 
@@ -85,15 +85,15 @@ class GroupResource(SyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._post(
-            "/api/v1/memories/group",
+            "/api/v1/memories/agent",
             body=maybe_transform(
                 {
-                    "group_id": group_id,
                     "messages": messages,
+                    "user_id": user_id,
                     "async_mode": async_mode,
-                    "group_meta": group_meta,
+                    "session_id": session_id,
                 },
-                group_add_params.GroupAddParams,
+                agent_add_params.AgentAddParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
@@ -104,7 +104,8 @@ class GroupResource(SyncAPIResource):
     def flush(
         self,
         *,
-        group_id: str,
+        user_id: str,
+        session_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -113,10 +114,13 @@ class GroupResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> FlushResponse:
         """
-        Trigger boundary detection on accumulated group messages.
+        Trigger agent-aware boundary detection on accumulated agent trajectory messages.
+        Extracts agent cases and skills when boundary is detected.
 
         Args:
-          group_id: Target group
+          user_id: Owner user ID
+
+          session_id: Target session
 
           extra_headers: Send extra headers
 
@@ -127,8 +131,14 @@ class GroupResource(SyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._post(
-            "/api/v1/memories/group/flush",
-            body=maybe_transform({"group_id": group_id}, group_flush_params.GroupFlushParams),
+            "/api/v1/memories/agent/flush",
+            body=maybe_transform(
+                {
+                    "user_id": user_id,
+                    "session_id": session_id,
+                },
+                agent_flush_params.AgentFlushParams,
+            ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -136,35 +146,35 @@ class GroupResource(SyncAPIResource):
         )
 
 
-class AsyncGroupResource(AsyncAPIResource):
+class AsyncAgentResource(AsyncAPIResource):
     """Memory ingestion, retrieval, search, and deletion"""
 
     @cached_property
-    def with_raw_response(self) -> AsyncGroupResourceWithRawResponse:
+    def with_raw_response(self) -> AsyncAgentResourceWithRawResponse:
         """
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/evermemos/everos-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/evermemos/everos-cloud-python#accessing-raw-response-data-eg-headers
         """
-        return AsyncGroupResourceWithRawResponse(self)
+        return AsyncAgentResourceWithRawResponse(self)
 
     @cached_property
-    def with_streaming_response(self) -> AsyncGroupResourceWithStreamingResponse:
+    def with_streaming_response(self) -> AsyncAgentResourceWithStreamingResponse:
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/evermemos/everos-python#with_streaming_response
+        For more information, see https://www.github.com/evermemos/everos-cloud-python#with_streaming_response
         """
-        return AsyncGroupResourceWithStreamingResponse(self)
+        return AsyncAgentResourceWithStreamingResponse(self)
 
     async def add(
         self,
         *,
-        group_id: str,
-        messages: Iterable[GroupMessageItemParam],
+        messages: Iterable[AgentMessageItemParam],
+        user_id: str,
         async_mode: bool | Omit = omit,
-        group_meta: Optional[Dict[str, object]] | Omit = omit,
+        session_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -172,20 +182,20 @@ class AsyncGroupResource(AsyncAPIResource):
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> AddResponse:
-        """Store batch messages into group memory space.
+        """Store agent trajectory messages (user/assistant/tool) into memory.
 
-        Each message must include
-        sender_id to identify participants.
+        Supports
+        tool_calls and tool_call_id for OpenAI-format function calling.
 
         Args:
-          group_id: Group identifier
+          messages: Agent trajectory messages (1-500 items)
 
-          messages: Batch message array (1-500 items). sender_id is required per message.
+          user_id: Owner user ID
 
           async_mode: Enable async processing. When true, returns 202 with task_id; when false,
               processes synchronously and returns 200.
 
-          group_meta: Group metadata
+          session_id: Session identifier
 
           extra_headers: Send extra headers
 
@@ -196,15 +206,15 @@ class AsyncGroupResource(AsyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return await self._post(
-            "/api/v1/memories/group",
+            "/api/v1/memories/agent",
             body=await async_maybe_transform(
                 {
-                    "group_id": group_id,
                     "messages": messages,
+                    "user_id": user_id,
                     "async_mode": async_mode,
-                    "group_meta": group_meta,
+                    "session_id": session_id,
                 },
-                group_add_params.GroupAddParams,
+                agent_add_params.AgentAddParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
@@ -215,7 +225,8 @@ class AsyncGroupResource(AsyncAPIResource):
     async def flush(
         self,
         *,
-        group_id: str,
+        user_id: str,
+        session_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -224,10 +235,13 @@ class AsyncGroupResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> FlushResponse:
         """
-        Trigger boundary detection on accumulated group messages.
+        Trigger agent-aware boundary detection on accumulated agent trajectory messages.
+        Extracts agent cases and skills when boundary is detected.
 
         Args:
-          group_id: Target group
+          user_id: Owner user ID
+
+          session_id: Target session
 
           extra_headers: Send extra headers
 
@@ -238,8 +252,14 @@ class AsyncGroupResource(AsyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return await self._post(
-            "/api/v1/memories/group/flush",
-            body=await async_maybe_transform({"group_id": group_id}, group_flush_params.GroupFlushParams),
+            "/api/v1/memories/agent/flush",
+            body=await async_maybe_transform(
+                {
+                    "user_id": user_id,
+                    "session_id": session_id,
+                },
+                agent_flush_params.AgentFlushParams,
+            ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -247,49 +267,49 @@ class AsyncGroupResource(AsyncAPIResource):
         )
 
 
-class GroupResourceWithRawResponse:
-    def __init__(self, group: GroupResource) -> None:
-        self._group = group
+class AgentResourceWithRawResponse:
+    def __init__(self, agent: AgentResource) -> None:
+        self._agent = agent
 
         self.add = to_raw_response_wrapper(
-            group.add,
+            agent.add,
         )
         self.flush = to_raw_response_wrapper(
-            group.flush,
+            agent.flush,
         )
 
 
-class AsyncGroupResourceWithRawResponse:
-    def __init__(self, group: AsyncGroupResource) -> None:
-        self._group = group
+class AsyncAgentResourceWithRawResponse:
+    def __init__(self, agent: AsyncAgentResource) -> None:
+        self._agent = agent
 
         self.add = async_to_raw_response_wrapper(
-            group.add,
+            agent.add,
         )
         self.flush = async_to_raw_response_wrapper(
-            group.flush,
+            agent.flush,
         )
 
 
-class GroupResourceWithStreamingResponse:
-    def __init__(self, group: GroupResource) -> None:
-        self._group = group
+class AgentResourceWithStreamingResponse:
+    def __init__(self, agent: AgentResource) -> None:
+        self._agent = agent
 
         self.add = to_streamed_response_wrapper(
-            group.add,
+            agent.add,
         )
         self.flush = to_streamed_response_wrapper(
-            group.flush,
+            agent.flush,
         )
 
 
-class AsyncGroupResourceWithStreamingResponse:
-    def __init__(self, group: AsyncGroupResource) -> None:
-        self._group = group
+class AsyncAgentResourceWithStreamingResponse:
+    def __init__(self, agent: AsyncAgentResource) -> None:
+        self._agent = agent
 
         self.add = async_to_streamed_response_wrapper(
-            group.add,
+            agent.add,
         )
         self.flush = async_to_streamed_response_wrapper(
-            group.flush,
+            agent.flush,
         )
