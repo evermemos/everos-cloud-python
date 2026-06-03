@@ -104,6 +104,12 @@ class EverOS(SyncAPIClient):
             custom_query=default_query,
             _strict_response_validation=_strict_response_validation,
         )
+        # custom: inject multimodal-aware MemoriesResource
+        from .lib._multimodal import MemoriesResourceWithMultimodal as _MemMultimodal
+        from .resources.v1.v1 import V1Resource as _V1Resource
+        _v1 = _V1Resource(self)
+        _v1.__dict__["memories"] = _MemMultimodal(self)
+        self.__dict__["v1"] = _v1
 
     @cached_property
     def v1(self) -> V1Resource:
@@ -287,6 +293,12 @@ class AsyncEverOS(AsyncAPIClient):
             custom_query=default_query,
             _strict_response_validation=_strict_response_validation,
         )
+        # custom: inject multimodal-aware AsyncMemoriesResource
+        from .lib._multimodal import AsyncMemoriesResourceWithMultimodal as _AsyncMemMultimodal
+        from .resources.v1.v1 import AsyncV1Resource as _AsyncV1Resource
+        _v1 = _AsyncV1Resource(self)
+        _v1.__dict__["memories"] = _AsyncMemMultimodal(self)
+        self.__dict__["v1"] = _v1
 
     @cached_property
     def v1(self) -> AsyncV1Resource:
