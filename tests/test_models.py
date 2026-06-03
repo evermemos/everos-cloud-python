@@ -8,9 +8,9 @@ import pytest
 import pydantic
 from pydantic import Field
 
-from everos._utils import PropertyInfo
-from everos._compat import PYDANTIC_V1, parse_obj, model_dump, model_json
-from everos._models import DISCRIMINATOR_CACHE, BaseModel, EagerIterable, construct_type
+from everos_cloud._utils import PropertyInfo
+from everos_cloud._compat import PYDANTIC_V1, parse_obj, model_dump, model_json
+from everos_cloud._models import DISCRIMINATOR_CACHE, BaseModel, EagerIterable, construct_type
 
 
 class BasicModel(BaseModel):

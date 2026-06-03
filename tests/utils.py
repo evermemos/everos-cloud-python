@@ -8,8 +8,8 @@ from typing import Any, TypeVar, Iterator, Sequence, cast
 from datetime import date, datetime
 from typing_extensions import Literal, get_args, get_origin, assert_type
 
-from everos._types import Omit, NoneType
-from everos._utils import (
+from everos_cloud._types import Omit, NoneType
+from everos_cloud._utils import (
     is_dict,
     is_list,
     is_list_type,
@@ -19,8 +19,8 @@ from everos._utils import (
     is_annotated_type,
     is_type_alias_type,
 )
-from everos._compat import PYDANTIC_V1, field_outer_type, get_model_fields
-from everos._models import BaseModel
+from everos_cloud._compat import PYDANTIC_V1, field_outer_type, get_model_fields
+from everos_cloud._models import BaseModel
 
 BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
 

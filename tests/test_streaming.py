@@ -5,8 +5,8 @@ from typing import Iterator, AsyncIterator
 import httpx
 import pytest
 
-from everos import EverOS, AsyncEverOS
-from everos._streaming import Stream, AsyncStream, ServerSentEvent
+from everos_cloud import EverOS, AsyncEverOS
+from everos_cloud._streaming import Stream, AsyncStream, ServerSentEvent
 
 
 @pytest.mark.asyncio

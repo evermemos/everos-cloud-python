@@ -7,9 +7,9 @@ from typing import Any, cast
 
 import pytest
 
-from everos import EverOS, AsyncEverOS
 from tests.utils import assert_matches_type
-from everos.types.v1 import SenderAPIResponse
+from everos_cloud import EverOS, AsyncEverOS
+from everos_cloud.types.v1 import SenderAPIResponse
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 

@@ -5,8 +5,8 @@ from typing import Union
 
 import pydantic
 
-from everos import _compat
-from everos._utils._json import openapi_dumps
+from everos_cloud import _compat
+from everos_cloud._utils._json import openapi_dumps
 
 
 class TestOpenapiDumps:

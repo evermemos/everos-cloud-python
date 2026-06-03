@@ -7,9 +7,9 @@ from typing import Any, cast
 
 import pytest
 
-from everos import EverOS, AsyncEverOS
 from tests.utils import assert_matches_type
-from everos.types.v1 import (
+from everos_cloud import EverOS, AsyncEverOS
+from everos_cloud.types.v1 import (
     AddResponse,
     FlushResponse,
     GetMemoriesResponse,

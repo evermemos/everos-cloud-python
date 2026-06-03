@@ -4,7 +4,7 @@ from urllib.parse import unquote
 
 import pytest
 
-from everos._qs import Querystring, stringify
+from everos_cloud._qs import Querystring, stringify
 
 
 def test_empty() -> None:
