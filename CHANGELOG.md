@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.5.0 (2026-07-18)
+
+Full Changelog: [v0.4.1...v0.5.0](https://github.com/evermemos/everos-cloud-python/compare/v0.4.1...v0.5.0)
+
+### Features
+
+* **stlc:** configurable CI runner and private-production-repo support in workflow templates ([9d35f6f](https://github.com/evermemos/everos-cloud-python/commit/9d35f6f71971f4f1ad5757c84a91c7e53e66d65b))
+
+
+### Bug Fixes
+
+* **internal:** resolve build failures ([491d75e](https://github.com/evermemos/everos-cloud-python/commit/491d75efdf344209258476ff7a21f3454eea90f2))
+
 ## 0.4.1 (2026-06-03)
 
 Full Changelog: [v0.4.0...v0.4.1](https://github.com/evermemos/everos-cloud-python/compare/v0.4.0...v0.4.1)
